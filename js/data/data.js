@@ -159,7 +159,7 @@ export default {
         {
           title: 'Clusters & jobs',
           cmds: [
-            { d: 'Create a cluster that deletes itself after 30 min idle', c: 'gcloud dataproc clusters create CLUSTER_NAME --region=REGION --num-workers=2 --worker-machine-type=n2-standard-4 --max-idle=30m' },
+            { d: 'Create a cluster that deletes itself after 30 min idle', c: 'gcloud dataproc clusters create CLUSTER_NAME --region=REGION --num-workers=2 --worker-machine-type=n2-standard-4 --delete-max-idle=30m' },
             { d: 'Submit a PySpark job', c: 'gcloud dataproc jobs submit pyspark gs://BUCKET_NAME/jobs/etl.py --cluster=CLUSTER_NAME --region=REGION' },
             { d: 'Submit a Spark SQL query', c: 'gcloud dataproc jobs submit spark-sql --cluster=CLUSTER_NAME --region=REGION -e="SHOW DATABASES"' },
             { d: 'Delete the cluster', c: 'gcloud dataproc clusters delete CLUSTER_NAME --region=REGION' },

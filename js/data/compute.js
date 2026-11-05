@@ -138,11 +138,11 @@ export default {
         {
           title: 'Operate',
           cmds: [
-            { d: 'List / describe', c: 'gcloud functions list\ngcloud functions describe hello --region=REGION --gen2' },
-            { d: 'Invoke directly', c: 'gcloud functions call hello --region=REGION --gen2 --data=\'{"name":"Ada"}\'' },
+            { d: 'List / describe', c: 'gcloud functions list\ngcloud functions describe hello --region=REGION --v2' },
+            { d: 'Invoke directly', c: 'gcloud functions call hello --region=REGION --data=\'{"name":"Ada"}\'' },
             { d: 'Read logs', c: 'gcloud functions logs read hello --region=REGION --gen2 --limit=50' },
             { d: 'List available runtimes', c: 'gcloud functions runtimes list --region=REGION' },
-            { d: 'Delete', c: 'gcloud functions delete hello --region=REGION --gen2' },
+            { d: 'Delete', c: 'gcloud functions delete hello --region=REGION' },
           ],
         },
       ],
@@ -210,7 +210,7 @@ export default {
             { d: 'Create a Docker repository', c: 'gcloud artifacts repositories create REPO --repository-format=docker --location=REGION --description="App images"' },
             { d: 'Create a Python / npm repository', c: 'gcloud artifacts repositories create py-repo --repository-format=python --location=REGION\ngcloud artifacts repositories create npm-repo --repository-format=npm --location=REGION' },
             { d: 'List repositories', c: 'gcloud artifacts repositories list --location=REGION' },
-            { d: 'Apply a cleanup policy (e.g. keep the last 10 versions)', c: 'gcloud artifacts repositories set-cleanup-policies REPO --location=REGION --policy=cleanup.json --no-dry-run' },
+            { d: 'Apply a cleanup policy (e.g. keep the last 10 versions); add `--dry-run` to only report what would be deleted', c: 'gcloud artifacts repositories set-cleanup-policies REPO --location=REGION --policy=cleanup.json' },
           ],
         },
         {

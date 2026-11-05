@@ -123,7 +123,7 @@ export default {
             { d: 'List projects you can access', c: 'gcloud projects list' },
             { d: 'Create a project (optionally under a folder or organization)', c: 'gcloud projects create PROJECT_ID --name="My Project" --folder=FOLDER_ID' },
             { d: 'Describe a project and get its number', c: 'gcloud projects describe PROJECT_ID --format="value(projectNumber)"' },
-            { d: 'Add a label', c: 'gcloud projects update PROJECT_ID --update-labels=env=dev,team=data' },
+            { d: 'Add labels (label flags are in the alpha track)', c: 'gcloud alpha projects update PROJECT_ID --update-labels=env=dev,team=data' },
             { d: 'Delete (soft-delete for 30 days) and restore', c: 'gcloud projects delete PROJECT_ID\ngcloud projects undelete PROJECT_ID' },
           ],
         },

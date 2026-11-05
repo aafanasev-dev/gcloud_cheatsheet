@@ -158,7 +158,7 @@ export default {
         {
           title: 'Policies',
           cmds: [
-            { d: 'List available constraints', c: 'gcloud org-policies list-available-constraints --organization=ORG_ID' },
+            { d: 'List all constraints, including ones not set', c: 'gcloud org-policies list --organization=ORG_ID --show-unset' },
             { d: 'Show policies set on a project', c: 'gcloud org-policies list --project=PROJECT_ID' },
             { d: 'Describe the effective policy', c: 'gcloud org-policies describe constraints/gcp.resourceLocations --project=PROJECT_ID --effective' },
             { d: 'Enforce a boolean constraint', c: 'gcloud resource-manager org-policies enable-enforce iam.disableServiceAccountKeyCreation --organization=ORG_ID' },

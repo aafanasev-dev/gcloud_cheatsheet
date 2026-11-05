@@ -1,0 +1,19 @@
+# Build → push to Artifact Registry → roll out a new Cloud Run revision.
+# Run with: gcloud builds submit --config=cloudbuild.yaml --region=$REGION \
+#             --service-account=projects/$PROJECT_ID/serviceAccounts/bookstore-build@$PROJECT_ID.iam.gserviceaccount.com
+substitutions:
+  _REGION: europe-west1
+  _SERVICE: bookstore
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/apps/bookstore:$BUILD_ID", "."]
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/apps/bookstore:$BUILD_ID"]
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args: ["run", "deploy", "${_SERVICE}", "--region=${_REGION}",
+           "--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/apps/bookstore:$BUILD_ID"]
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/apps/bookstore:$BUILD_ID"
+options:
+  logging: CLOUD_LOGGING_ONLY  # required when the build runs as a user-managed service account

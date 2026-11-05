@@ -3,7 +3,8 @@
 // Shape of a topic module:
 //   { id, title, icon, color, description, useCases[],
 //     subtopics: [{ id, title, icon, summary, description, useCases[],
-//                   sections: [{ title, note?, cmds: [{ d, c }] }] }] }
+//                   covers?, flow?,
+//                   sections: [{ title, note?, files?: [{ name, lang, code, open }], cmds: [{ d, c }] }] }] }
 // `d` is a one-line description, `c` the command(s). Backticks in prose
 // render as inline code.
 import start from './start.js';
@@ -12,5 +13,7 @@ import compute from './compute.js';
 import iam from './iam.js';
 import data from './data.js';
 import apis from './apis.js';
+import gemini from './gemini.js';
+import examples from './examples.js';
 
-export const topics = [start, storage, compute, iam, data, apis];
+export const topics = [start, storage, compute, iam, data, apis, gemini, examples];

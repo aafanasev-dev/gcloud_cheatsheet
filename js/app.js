@@ -16,6 +16,11 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const prose = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 const cmdCount = sub => sub.sections.reduce((n, s) => n + s.cmds.length, 0);
+const fileCount = sub => sub.sections.reduce((n, s) => n + (s.files ? s.files.length : 0), 0);
+const countLabel = sub => {
+  const f = fileCount(sub);
+  return (f ? `${f} files · ` : '') + `${cmdCount(sub)} commands`;
+};
 
 // Light syntax colouring: comment lines, --flags and UPPER_CASE placeholders.
 function highlight(code) {
@@ -29,6 +34,12 @@ function highlight(code) {
       return placeholders(tok);
     }).join('');
   }).join('\n');
+}
+// Source files: only comment lines are coloured. Placeholder colouring would be
+// wrong in real code.
+function highlightFile(code, lang) {
+  const comment = { python: /^\s*#/, yaml: /^\s*#/, dockerfile: /^\s*#/, text: /^\s*#/, sql: /^\s*--/, javascript: /^\s*\/\// }[lang];
+  return code.split('\n').map(l => comment && comment.test(l) ? `<span class="c">${esc(l)}</span>` : esc(l)).join('\n');
 }
 function placeholders(s) {
   return esc(s).replace(/\b([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+|PROJECT|REGION|ZONE|BUCKET|DATASET|TABLE|INSTANCE|SERVICE|REPO|IMAGE|TOPIC|EMAIL)\b/g, '<span class="p">$1</span>');
@@ -77,7 +88,7 @@ const card = (t, s) => `
     <span class="card-icon">${icon(s.icon)}</span>
     <h3>${esc(s.title)}</h3>
     <p>${prose(s.summary)}</p>
-    <span class="count">${cmdCount(s)} commands</span>
+    <span class="count">${countLabel(s)}</span>
   </a>`;
 
 function renderHome() {
@@ -113,6 +124,31 @@ const cmdBlock = c => `
       <button class="copy" title="Copy" aria-label="Copy command">${icon('copy')}</button></div>
   </div>`;
 
+const fileBlock = f => `
+  <details class="file"${f.open ? ' open' : ''}>
+    <summary><span class="file-name">${esc(f.name)}</span><span class="file-meta">${esc(f.lang)} · ${f.code.split('\n').length} lines</span></summary>
+    <div class="cmd-box"><pre class="code"><code>${highlightFile(f.code, f.lang)}</code></pre>
+      <button class="copy" title="Copy file" aria-label="Copy file">${icon('copy')}</button></div>
+  </details>`;
+
+function renderCovers(s) {
+  if (!s.covers) return '';
+  const chips = s.covers.map(([tid, sid]) => {
+    const t = topics.find(x => x.id === tid);
+    const sub = t?.subtopics.find(x => x.id === sid);
+    if (!sub) return '';
+    return `<a class="chip t-${t.color}" href="#/${tid}/${sid}">${icon(sub.icon)}<span>${esc(sub.title)}</span></a>`;
+  }).join('');
+  const used = [...new Set(s.covers.map(([tid]) => tid))].map(id => topics.find(t => t.id === id)?.title).filter(Boolean);
+  return `<div class="covers"><h2>Covers ${used.length} topics: ${used.map(esc).join(', ')}</h2><div class="chips">${chips}</div></div>`;
+}
+
+function renderFlow(s) {
+  if (!s.flow) return '';
+  const row = steps => `<div class="flow-row">${steps.map(x => `<span class="flow-node">${esc(x)}</span>`).join('<span class="flow-arrow" aria-hidden="true">→</span>')}</div>`;
+  return `<div class="flow"><h2>Architecture</h2>${s.flow.map(row).join('')}</div>`;
+}
+
 function renderSub(t, s) {
   const i = allSubs.findIndex(x => x.sub === s);
   const prev = allSubs[i - 1], next = allSubs[i + 1];
@@ -122,11 +158,14 @@ function renderSub(t, s) {
     <div class="page-head t-${t.color}"><span class="page-icon">${icon(s.icon)}</span><h1>${esc(s.title)}</h1></div>
     <p class="lead">${prose(s.description)}</p>
     <div class="usecases t-${t.color}"><h2>Use cases</h2><ul>${s.useCases.map(u => `<li>${prose(u)}</li>`).join('')}</ul></div>
+    ${renderFlow(s)}
+    ${renderCovers(s)}
     <nav class="toc">${s.sections.map((sec, n) => `<a href="#" data-jump="sec-${n}">${esc(sec.title)}</a>`).join('')}</nav>
     ${s.sections.map((sec, n) => `
       <section class="section" id="sec-${n}">
         <h2>${esc(sec.title)}</h2>
         ${sec.note ? `<p class="note">${prose(sec.note)}</p>` : ''}
+        ${(sec.files || []).map(fileBlock).join('')}
         ${sec.cmds.map(cmdBlock).join('')}
       </section>`).join('')}
     <div class="pager">${link(prev, 'prev', '← Previous')}${link(next, 'next', 'Next →')}</div>`;
@@ -191,7 +230,7 @@ $main.addEventListener('click', async e => {
   }
   const btn = e.target.closest('.copy');
   if (!btn) return;
-  const text = btn.parentElement.querySelector('pre').innerText;
+  const text = btn.parentElement.querySelector('pre').textContent;
   try {
     await navigator.clipboard.writeText(text);
   } catch {

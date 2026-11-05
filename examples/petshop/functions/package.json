@@ -1,0 +1,19 @@
+{
+  "name": "petshop-functions",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start:api": "functions-framework --target=petsApi",
+    "start:worker": "functions-framework --target=onAdoption --signature-type=cloudevent"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "9.4.0",
+    "@google-cloud/functions-framework": "5.0.5",
+    "@google-cloud/pubsub": "6.3.2",
+    "@google/genai": "2.32.0"
+  }
+}
